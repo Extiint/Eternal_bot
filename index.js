@@ -67,12 +67,11 @@ function handleBuyEvent(addr, amount) {
         console.error('Error getting contract balance:', err);
       });
   } catch (err) {
-    console.error('Error handling LotteryWinner event:', err);
+    console.error('Error handling NewDeposit event:', err);
   }
 }
 
-const filter = contract.filters.NewDeposit();
-contract.on(filter, handleBuyEvent);
+contract.on('NewDeposit', handleBuyEvent);
 
 
   
