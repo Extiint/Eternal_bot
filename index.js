@@ -16,7 +16,7 @@ express()
 require('dotenv').config();
 const { ethers } = require('ethers');
 const Big = require('big.js');
-const httpProvider = new ethers.JsonRpcProvider('https://long-autumn-meme.bsc.discover.quiknode.pro/2bc745f7db00bf614121c5293deea1cc933b52c6/');
+const httpProvider = new ethers.JsonRpcProvider('https://bsc-dataseed1.binance.org');
 //const httpProvider = new ethers.JsonRpcProvider('https://data-seed-prebsc-1-s1.binance.org:8545');
 
 const contract = new ethers.Contract(contractAddress, contractAbi, httpProvider);
