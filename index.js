@@ -71,6 +71,8 @@ function handleBuyEvent(addr, amount) {
   }
 }
 
-contract.on('NewDeposit', handleBuyEvent);
+const filter = contract.filters.NewDeposit();
+contract.on(filter, handleBuyEvent);
+
 
   
