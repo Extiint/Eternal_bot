@@ -23,7 +23,7 @@ const contract = new ethers.Contract(contractAddress, contractAbi, httpProvider)
 
 const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: { interval: 1000 } });
-const chatId = '@lotterytest001';
+const chatId = '@eternalfinancebsc';
 
 
 bot.on('polling_error', (err) => {
