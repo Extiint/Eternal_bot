@@ -56,7 +56,7 @@ function handleBuyEvent(addr, amount) {
            emojis += '🚀'; // add rocket emoji
          }
         
-        bot.sendPhoto(chatId, 'https://ipfs.filebase.io/ipfs/Qmc1xMaiD8WQVyJEqwxJR3KaYsSCFjgFTp1dRUy6ChtxFU', {
+        bot.sendPhoto(chatId, 'https://ipfs.filebase.io/ipfs/QmPV7UhZANN1auhab5UXMhVv2Aph1uDqgSkHR1e24YMJAJ', {
           caption: `💰 <b>New USDC deposit detected! 💰</b>\n\n ${emojis} \n\n<b>Total Balance:</b> ${balance2} USDC\n<b>Deposit Amount:</b> ${newamount} USDC \n\n<a href="${bscScanLink}"><u>Tx</u></a>  |  <a href="https://eternalfinance.net/"><u>Website</u></a>  |  <a href="https://the-stamp.com/2023/02/eternal-finance/"><u>Audit</u></a>`,
           parse_mode: 'HTML'
         }).catch((err) => {
