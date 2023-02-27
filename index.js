@@ -22,7 +22,7 @@ const httpProvider = new ethers.JsonRpcProvider('https://long-autumn-meme.bsc.di
 const contract = new ethers.Contract(contractAddress, contractAbi, httpProvider);
 
 const TelegramBot = require('node-telegram-bot-api');
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: { interval: 1000 } });
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: { interval: 3000 } });
 const chatId = '@eternalfinancebsc';
 
 
