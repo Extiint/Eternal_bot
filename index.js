@@ -27,7 +27,6 @@ const opts = {
   duration: 10, // 10 seconds
 };
 const rateLimiter = new RateLimiterMemory(opts);
-
 const contract = new ethers.Contract(contractAddress, contractAbi, httpProvider);
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -51,13 +50,11 @@ bot.onText(/price/, async (msg, match) => {
       bot.sendMessage(userId, 'You are sending requests too frequently. Please wait and try again later.');
       return;
     }
-
     const tokenAmount = '1000000000000000000';
     const busdAmount = await contract.tokenToBUSDToken(tokenAmount);
     const value = new Big(Number(busdAmount)).div(new Big('1e18')).toFixed(2);
     console.log('BUSD amount:', busdAmount.toString());
     await bot.sendMessage(chatId2, `ETRNL Price is: ${value.toString()}$`);
-
   } catch (err) {
     const userId = msg.from.id;
     bot.sendMessage(userId, 'You are sending requests too frequently. Please wait and try again later.');
@@ -69,7 +66,8 @@ function handleBuyEvent(addr, amount) {
   try {
     console.log('Received event:', { addr , amount });
     const newamount = new Big(Number(amount)).div(new Big('1e18')).toFixed(2);
-    contract.tokenToBUSDToken(amount)
+    const tokenAmount = '1000000000000000000';
+    contract.tokenToBUSDToken(tokenAmount)
       .then((busdAmount) => {
         contract.getContractBalance()
           .then((balance) => {
