@@ -41,25 +41,32 @@ bot.on('polling_error', (err) => {
 
 bot.onText(/price/, async (msg, match) => {
   try {
-    const chatId2 = '@eternalfinancebsc';
+    const tokenAmount = '1000000000000000000';
+    const busdAmount = await contract.tokenToBUSDToken(tokenAmount);
+    const value = new Big(Number(busdAmount)).div(new Big('1e18')).toFixed(2);
     const userId = msg.from.id;
-    // Check if the user has exceeded the rate limit
     const isAllowed = await rateLimiter.consume(userId);
     if (!isAllowed) {
       // If the user has exceeded the rate limit, send a message indicating that they need to wait
       bot.sendMessage(userId, 'You are sending requests too frequently. Please wait and try again later.');
       return;
     }
-    const tokenAmount = '1000000000000000000';
-    const busdAmount = await contract.tokenToBUSDToken(tokenAmount);
-    const value = new Big(Number(busdAmount)).div(new Big('1e18')).toFixed(2);
+
     console.log('BUSD amount:', busdAmount.toString());
-    await bot.sendMessage(chatId2, `ETRNL Price is: ${value.toString()}$`);
+    
+    if (msg.chat.type === 'private') {
+      // If the user sent the command in a private chat, respond in private
+      await bot.sendMessage(msg.chat.id, `ETRNL Price is: ${value.toString()}$`);
+    } else {
+      // If the user sent the command in a group chat, respond in the same chat
+      await bot.sendMessage(msg.chat.id, `ETRNL Price is: ${value.toString()}$`);
+    }
   } catch (err) {
     const userId = msg.from.id;
     bot.sendMessage(userId, 'You are sending requests too frequently. Please wait and try again later.');
   }
 });
+
 
 async function handleBuyEvent(addr, amount) {
   try {
