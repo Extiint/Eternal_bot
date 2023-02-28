@@ -19,10 +19,20 @@ const Big = require('big.js');
 const httpProvider = new ethers.JsonRpcProvider('https://long-autumn-meme.bsc.discover.quiknode.pro/2bc745f7db00bf614121c5293deea1cc933b52c6/');
 //const httpProvider = new ethers.JsonRpcProvider('https://data-seed-prebsc-1-s1.binance.org:8545');
 
+const { RateLimiterMemory } = require('rate-limiter-flexible');
+
+// Define the rate limiter options
+const opts = {
+  points: 1, // 1 point per request
+  duration: 10, // 10 seconds
+};
+const rateLimiter = new RateLimiterMemory(opts);
+
 const contract = new ethers.Contract(contractAddress, contractAbi, httpProvider);
 
 const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: { interval: 3000 } });
+//const chatId = '@lotterytest001'
 const chatId = '@eternalfinancebsc';
 
 
@@ -30,41 +40,62 @@ bot.on('polling_error', (err) => {
   console.error('Polling error:', err);
 });
 
-bot.onText(/nowtalk001/, async (msg, match) => {
+bot.onText(/price/, async (msg, match) => {
   try {
-    const chatId2 = '@lotterytest001';
-    await bot.sendMessage(chatId2, 'Hello!');
+    const chatId2 = '@eternalfinancebsc';
+    const userId = msg.from.id;
+    // Check if the user has exceeded the rate limit
+    const isAllowed = await rateLimiter.consume(userId);
+    if (!isAllowed) {
+      // If the user has exceeded the rate limit, send a message indicating that they need to wait
+      bot.sendMessage(userId, 'You are sending requests too frequently. Please wait and try again later.');
+      return;
+    }
+
+    const tokenAmount = '1000000000000000000';
+    const busdAmount = await contract.tokenToBUSDToken(tokenAmount);
+    const value = new Big(Number(busdAmount)).div(new Big('1e18')).toFixed(2);
+    console.log('BUSD amount:', busdAmount.toString());
+    await bot.sendMessage(chatId2, `ETRNL Price is: ${value.toString()}$`);
+
   } catch (err) {
-    console.error('Error in nowtalk001 command:', err);
+    const userId = msg.from.id;
+    bot.sendMessage(userId, 'You are sending requests too frequently. Please wait and try again later.');
   }
 });
 
+
 function handleBuyEvent(addr, amount) {
   try {
-    console.log('Received event:', { addr , amount});
+    console.log('Received event:', { addr , amount });
     const newamount = new Big(Number(amount)).div(new Big('1e18')).toFixed(2);
-    
-    contract.getContractBalance()
-      .then((balance) => {
-        const bscScanLink = `https://bscscan.com/tx/${addr}`
-        const balance2 = new Big(Number(balance)).div(new Big('1e18')).toFixed(2);
-
-         // calculate number of emojis to send
-         const numEmojis = Math.floor(newamount / 10);
-         let emojis = '';
-         for (let i = 0; i < numEmojis; i++) {
-           emojis += '🚀'; // add rocket emoji
-         }
-        
-        bot.sendPhoto(chatId, 'https://ipfs.filebase.io/ipfs/QmPV7UhZANN1auhab5UXMhVv2Aph1uDqgSkHR1e24YMJAJ', {
-          caption: `💰 <b>New USDC deposit detected! 💰</b>\n\n ${emojis} \n\n<b>Total Balance:</b> ${balance2} USDC\n<b>Deposit Amount:</b> ${newamount} USDC \n\n<a href="${bscScanLink}"><u>Tx</u></a>  |  <a href="https://eternalfinance.net/"><u>Website</u></a>  |  <a href="https://the-stamp.com/2023/02/eternal-finance/"><u>Audit</u></a>`,
-          parse_mode: 'HTML'
-        }).catch((err) => {
-          console.error('Error sending photo:', err);
-        });
+    contract.tokenToBUSDToken(amount)
+      .then((busdAmount) => {
+        contract.getContractBalance()
+          .then((balance) => {
+            const bscScanLink = `https://bscscan.com/tx/${addr}`;
+            const balance2 = new Big(Number(balance)).div(new Big('1e18')).toFixed(2);
+            const busdAmount2 = new Big(Number(busdAmount)).div(new Big('1e18')).toFixed(2);
+            // calculate number of emojis to send
+            const numEmojis = Math.floor(newamount / 10);
+            let emojis = '';
+            for (let i = 0; i < numEmojis; i++) {
+              emojis += '🚀'; // add rocket emoji
+            }
+            const caption = `💰 <b>New USDC deposit detected! 💰</b>\n\n ${emojis} \n\n<b>ETRNL Price:</b> ${busdAmount2}$\n<b>Total Balance:</b> ${balance2} USDC\n<b>Deposit Amount:</b> ${newamount} USDC\n\n<a href="${bscScanLink}"><u>Tx</u></a>  |  <a href="https://eternalfinance.net/"><u>Website</u></a>  |  <a href="https://the-stamp.com/2023/02/eternal-finance/"><u>Audit</u></a>`;
+            bot.sendPhoto(chatId, 'https://ipfs.filebase.io/ipfs/QmPV7UhZANN1auhab5UXMhVv2Aph1uDqgSkHR1e24YMJAJ', {
+              caption: caption,
+              parse_mode: 'HTML'
+            }).catch((err) => {
+              console.error('Error sending photo:', err);
+            });
+          })
+          .catch((err) => {
+            console.error('Error getting contract balance:', err);
+          });
       })
       .catch((err) => {
-        console.error('Error getting contract balance:', err);
+        console.error('Error getting BUSD amount:', err);
       });
   } catch (err) {
     console.error('Error handling NewDeposit event:', err);

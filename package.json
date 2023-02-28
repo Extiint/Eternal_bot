@@ -17,6 +17,7 @@
     "ethers": "^6.0.5",
     "express": "^4.15.2",
     "node-telegram-bot-api": "^0.61.0",
+    "rate-limiter-flexible": "^2.4.1",
     "web3": "^1.8.2"
   },
   "devDependencies": {
