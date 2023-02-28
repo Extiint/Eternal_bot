@@ -61,44 +61,32 @@ bot.onText(/price/, async (msg, match) => {
   }
 });
 
-
-function handleBuyEvent(addr, amount) {
+async function handleBuyEvent(addr, amount) {
   try {
     console.log('Received event:', { addr , amount });
     const newamount = new Big(Number(amount)).div(new Big('1e18')).toFixed(2);
     const tokenAmount = '1000000000000000000';
-    contract.tokenToBUSDToken(tokenAmount)
-      .then((busdAmount) => {
-        contract.getContractBalance()
-          .then((balance) => {
-            const bscScanLink = `https://bscscan.com/tx/${addr}`;
-            const balance2 = new Big(Number(balance)).div(new Big('1e18')).toFixed(2);
-            const busdAmount2 = new Big(Number(busdAmount)).div(new Big('1e18')).toFixed(2);
-            // calculate number of emojis to send
-            const numEmojis = Math.floor(newamount / 10);
-            let emojis = '';
-            for (let i = 0; i < numEmojis; i++) {
-              emojis += '🚀'; // add rocket emoji
-            }
-            const caption = `💰 <b>New USDC deposit detected! 💰</b>\n\n ${emojis} \n\n<b>ETRNL Price:</b> ${busdAmount2}$\n<b>Total Balance:</b> ${balance2} USDC\n<b>Deposit Amount:</b> ${newamount} USDC\n\n<a href="${bscScanLink}"><u>Tx</u></a>  |  <a href="https://eternalfinance.net/"><u>Website</u></a>  |  <a href="https://the-stamp.com/2023/02/eternal-finance/"><u>Audit</u></a>`;
-            bot.sendPhoto(chatId, 'https://ipfs.filebase.io/ipfs/QmPV7UhZANN1auhab5UXMhVv2Aph1uDqgSkHR1e24YMJAJ', {
-              caption: caption,
-              parse_mode: 'HTML'
-            }).catch((err) => {
-              console.error('Error sending photo:', err);
-            });
-          })
-          .catch((err) => {
-            console.error('Error getting contract balance:', err);
-          });
-      })
-      .catch((err) => {
-        console.error('Error getting BUSD amount:', err);
-      });
+    const busdAmount = await contract.tokenToBUSDToken(tokenAmount);
+    const balance = await contract.getContractBalance();
+    const bscScanLink = `https://bscscan.com/tx/${addr}`;
+    const balance2 = new Big(Number(balance)).div(new Big('1e18')).toFixed(2);
+    const busdAmount2 = new Big(Number(busdAmount)).div(new Big('1e18')).toFixed(2);
+    // calculate number of emojis to send
+    const numEmojis = Math.floor(newamount / 10);
+    let emojis = '';
+    for (let i = 0; i < numEmojis; i++) {
+      emojis += '🚀'; // add rocket emoji
+    }
+    const caption = `💰 <b>New USDC deposit detected! 💰</b>\n\n ${emojis} \n\n<b>ETRNL Price:</b> ${busdAmount2}$\n<b>Total Balance:</b> ${balance2} USDC\n<b>Deposit Amount:</b> ${newamount} USDC\n\n<a href="${bscScanLink}"><u>Tx</u></a>  |  <a href="https://eternalfinance.net/"><u>Website</u></a>  |  <a href="https://the-stamp.com/2023/02/eternal-finance/"><u>Audit</u></a>`;
+    await bot.sendPhoto(chatId, 'https://ipfs.filebase.io/ipfs/QmPV7UhZANN1auhab5UXMhVv2Aph1uDqgSkHR1e24YMJAJ', {
+      caption: caption,
+      parse_mode: 'HTML'
+    });
   } catch (err) {
     console.error('Error handling NewDeposit event:', err);
   }
 }
+
 
 contract.on('NewDeposit', handleBuyEvent);
 
