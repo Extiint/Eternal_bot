@@ -84,7 +84,7 @@ async function handleBuyEvent(addr, amount) {
     for (let i = 0; i < numEmojis; i++) {
       emojis += '🚀'; // add rocket emoji
     }
-    const caption = `💰 <b>New USDC deposit detected! 💰</b>\n\n ${emojis} \n\n<b>ETRNL Price:</b> ${busdAmount2}$\n<b>Total Balance:</b> ${balance2} USDC\n<b>Deposit Amount:</b> ${newamount} USDC\n\n<a href="${bscScanLink}"><u>Tx</u></a>  |  <a href="https://eternalfinance.net/"><u>Website</u></a>  |  <a href="https://the-stamp.com/2023/02/eternal-finance/"><u>Audit</u></a>`;
+    const caption = `💰 <b>New USDC deposit detected! 💰</b>\n\n ${emojis} \n\n<b>ETRNL Price:</b> ${busdAmount2}$\n<b>Total Balance:</b> ${balance2} USDC\n<b>Deposit Amount:</b> ${newamount} USDC\n\n  <a href="https://eternalfinance.net/"><u>Website</u></a>  |  <a href="https://the-stamp.com/2023/02/eternal-finance/"><u>Audit</u></a>`;
     await bot.sendPhoto(chatId, 'https://ipfs.filebase.io/ipfs/QmPV7UhZANN1auhab5UXMhVv2Aph1uDqgSkHR1e24YMJAJ', {
       caption: caption,
       parse_mode: 'HTML'
